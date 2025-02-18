@@ -53,9 +53,15 @@ app.get("/getUser", async(req, res) => {
 })
 
 //update user
-app.patch("/updateUser", async(req, res) => {
-    const userId=req.params.id;
-    const updateData=req.body;
+app.patch("/updateUser/:userId", async(req, res) => {
+    const userId=req.params?.userId;
+    const {firstName, lastName, age, gender}=req.body;
+    const updateData={
+        firstName: firstName,
+        lastName: lastName,
+        age: age,
+        gender: gender
+    };
     try{
         await User.findByIdAndUpdate(userId, updateData);
         //there is an optional third argument for { returnDocument: "after"} or { returnDocument: "before"}

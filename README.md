@@ -33,4 +33,4 @@ Create an Express server
 -> Add schema validation for user (like, minlength, unique, required, enum, validate())
     (By default validate() will only work for new datas(eg: registration), to make it work for updation of docs,
     include the option { runValidators: true } to enable validation during the update.When calling update methods (like findByIdAndUpdate))
-->
+-> npm i validator (A library of string validators and sanitizers.)
