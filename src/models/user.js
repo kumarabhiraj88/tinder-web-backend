@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
 const genderEnum=["male", "female"]
 
@@ -16,12 +15,7 @@ const userSchema = mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true,
-        validate(value){
-            if(!validator.isEmail(value)){
-                throw new Error("Invalid email");
-        }
-    }
+        trim: true
     },
     password: {
         type: String,

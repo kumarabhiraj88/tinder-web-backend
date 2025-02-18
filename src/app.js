@@ -3,6 +3,8 @@ const express = require('express');
 require('dotenv').config(); // Load environment variables
 const connection = require('./config/database');
 const User = require('./models/user');
+const { validateSignupData } = require('./utils/validation');
+const bcrypt=require('bcryptjs');
 
 // create an instance of express application
 const app = express();
@@ -10,24 +12,53 @@ const PORT = process.env.PORT || 3000;
 
 //signup
 app.post("/signup",async(req, res)=>{
-    //Creating an instance of the User model
-    const user = new User({
-        firstName: "Gokul",
-        lastName: "",
-        emailId: "gokul@gmail.com",    
-        password: "Gokul@123",
-        age: 36,
-        gender: "Male"
-    });
+  
     try{
+        validateSignupData(req);
+
+        const {firstName, lastName, emailId, password, age, gender}=req.body;
+
+        //encrypt the password
+        const passwordHash=await bcrypt.hash(password,10);
+
+        //Creating an instance of the User model
+        const user = new User({
+            firstName,
+            lastName,
+            emailId, 
+            password: passwordHash,
+            age,
+            gender
+        });
         await user.save();
         res.send("User created successfully");
     }catch(err){
         console.log("Error saving the user",err.message);
-    }
-    
+    }  
 
 })
+
+//login
+app.post("/login",async(req, res)=>{
+    try{        
+        const {emailId, password}=req.body;
+        const user=await User.findOne({emailId});
+        if(!user){  
+            res.send("Invalid credentials");
+        }       
+        else{
+            const isMatch=await bcrypt.compare(password, user.password);
+            if(!isMatch){
+                res.send("Invalid credentials");
+            }           
+            else{
+                res.send("Login successful");
+            }
+        }
+    }catch(err){
+        console.log("Error logging in",err.message);
+    }   
+ })
 
 //get all users
 app.get("/getUsers", async(req, res) => {
