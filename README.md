@@ -30,3 +30,7 @@ Create an Express server
 -> Create a signup api and push some dummy data into database by post api call using postman tool
 (Always try to wrap crud operations within try catch block)
 -> Write apis for get all users, get single user by id, update user by id and delete user by id
+-> Add schema validation for user (like, minlength, unique, required, enum, validate())
+    (By default validate() will only work for new datas(eg: registration), to make it work for updation of docs,
+    include the option { runValidators: true } to enable validation during the update.When calling update methods (like findByIdAndUpdate))
+->

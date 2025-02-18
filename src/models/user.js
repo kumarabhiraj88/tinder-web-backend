@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const genderEnum=["male", "female"]
+
 const userSchema = mongoose.Schema({
     firstName: {
         type: String,
@@ -11,19 +13,22 @@ const userSchema = mongoose.Schema({
     emailId:{
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true,
+        trim: true
     },
     password: {
         type: String,
         required: true
     },
     age:{
-        type: Number
+        type: Number,
+        enum: genderEnum
     },
     gender:{
         type: String
     }
-});
+}, {timestamps: true});
 
 //create user model
 const User= mongoose.model("User", userSchema);
