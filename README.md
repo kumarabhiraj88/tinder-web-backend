@@ -49,6 +49,7 @@ Create an Express server
     (within login success, create a jwt token using jwt.sign() with jwt secret key and user data and attach this token to res.cookie())
 -> create middlewares/auth.js to verify token from the cookies and add this middleware to apis
     (use jwt.verify() to check whether the token is valid or not)
+    (provide the user result in the response)
 -> npm i cors, add it as a middleware( app.use(cors())) (to avoid cross domain api fetching)
     (Also whitelist the domain name within the cors(), If the origin is not whitelisted, the browser will not send cookies)
     (this prevent unauthorized or malicious sites from making requests to your server)

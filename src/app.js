@@ -70,7 +70,7 @@ app.post("/login",async(req, res)=>{
                 //create a JWT token and add it to cookies
                 const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET_KEY);
                 res.cookie("token", token);
-                res.send("Login successful");
+                res.send(user);
             }
         }
     }catch(err){
