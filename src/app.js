@@ -3,18 +3,33 @@ const express = require('express');
 require('dotenv').config(); // Load environment variables
 const connection = require('./config/database');
 const User = require('./models/user');
-const { validateSignupData } = require('./utils/validation');
-const bcrypt=require('bcryptjs');
+const validateSignupData = require('./utils/validation');
+const bcrypt=require('bcrypt');
+const cookieParser = require('cookie-parser');
+const userAuth = require('./middlewares/auth');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 // create an instance of express application
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//whitelist the domains that can access the backend
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
+//converts the JSON data in the request body into a JavaScript object
+app.use(express.json());
+
+//parse cookies attached to incoming requests
+app.use(cookieParser());
+
 //signup
 app.post("/signup",async(req, res)=>{
   
     try{
-        validateSignupData(req);
+         validateSignupData(req);
 
         const {firstName, lastName, emailId, password, age, gender}=req.body;
 
@@ -52,6 +67,9 @@ app.post("/login",async(req, res)=>{
                 res.send("Invalid credentials");
             }           
             else{
+                //create a JWT token and add it to cookies
+                const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET_KEY);
+                res.cookie("token", token);
                 res.send("Login successful");
             }
         }
@@ -61,7 +79,7 @@ app.post("/login",async(req, res)=>{
  })
 
 //get all users
-app.get("/getUsers", async(req, res) => {
+app.get("/getUsers", userAuth,  async(req, res) => {
     try{
         const result= await User.find();
         res.send(result);
@@ -72,7 +90,7 @@ app.get("/getUsers", async(req, res) => {
 })
 
 //get single user by id
-app.get("/getUser", async(req, res) => {
+app.get("/getUser", userAuth, async(req, res) => {
     try{
         const userId=req.params.id;
         const result= await User.findById(userId);
@@ -84,7 +102,7 @@ app.get("/getUser", async(req, res) => {
 })
 
 //update user
-app.patch("/updateUser/:userId", async(req, res) => {
+app.patch("/updateUser/:userId", userAuth, async(req, res) => {
     const userId=req.params?.userId;
     const {firstName, lastName, age, gender}=req.body;
     const updateData={
@@ -103,8 +121,8 @@ app.patch("/updateUser/:userId", async(req, res) => {
 })
 
 //delete user
-app.delete("/deleteUser", async(req, res) => {
-    const userId=req.params.id;
+app.delete("/deleteUser/:userId", userAuth, async(req, res) => {
+    const userId=req.params.userId;
     try{
         //findByIdAndDelete(id) is a shorthand for findOneAndDelete({ _id: id })
         await User.findByIdAndDelete(userId);

@@ -27,6 +27,8 @@ Create an Express server
     (Models act as an interface to the database, for interacting with documents based on the defined schema, enabling CRUD operations.)
     (eg: models/user.js)
 -> Create a User schema & the User Model
+-> add app.use(express.json())
+    (It automatically converts the JSON data in the request body into a JavaScript object, making it easy to work with in your route handlers.As middleware, it can be added to specific routes or applied globally to handle JSON requests throughout the application.)
 -> Create a signup api and push some dummy data into database by post api call using postman tool
 (Always try to wrap crud operations within try catch block)
 -> Write apis for get all users, get single user by id, update user by id and delete user by id
@@ -37,4 +39,16 @@ Create an Express server
     (Always try to sanitize data from req.body- it can contain malicious data)
 -> create utils/validation.js for handling schema validations 
 -> npm i bcrypt (for password encryption using bcrypt.hash())
--> create login api (use bcrypt.compare to check the login password and db user password matches)
+-> npm i jsonwebtoken ()
+-> add a secret key in the .env file for generating a JWT token
+-> npm i cookie-parser ( add this as a middleware within app.use(cookieParser()))
+    ( used to parse cookies attached to incoming requests.  It automatically parses the Cookie header and populates req.cookies with the cookie key-value pairs, making it easy to access cookie data.)
+    (browsers automatically send cookies with every HTTP request to the same domain that set those cookies, Cookies have expiration dates. If a cookie has expired, it will no longer be sent with requests.)
+-> create login api 
+    (use bcrypt.compare to check the login password and db user password matches) (also create a jwt token and add it to res.cookie())
+    (within login success, create a jwt token using jwt.sign() with jwt secret key and user data and attach this token to res.cookie())
+-> create middlewares/auth.js to verify token from the cookies and add this middleware to apis
+    (use jwt.verify() to check whether the token is valid or not)
+-> npm i cors, add it as a middleware( app.use(cors())) (to avoid cross domain api fetching)
+    (Also whitelist the domain name within the cors(), If the origin is not whitelisted, the browser will not send cookies)
+    (this prevent unauthorized or malicious sites from making requests to your server)
