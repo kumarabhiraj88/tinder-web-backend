@@ -29,6 +29,9 @@ Create an Express server
 -> Create a User schema & the User Model
 -> add app.use(express.json())
     (It automatically converts the JSON data in the request body into a JavaScript object, making it easy to work with in your route handlers.As middleware, it can be added to specific routes or applied globally to handle JSON requests throughout the application.)
+-> Use express router (express.Router();)
+    (It allows you to create modular route handlers, making your code cleaner and easier to maintain)
+    (Keep routes organized in separate files)
 -> Create a signup api and push some dummy data into database by post api call using postman tool
 (Always try to wrap crud operations within try catch block)
 -> Write apis for get all users, get single user by id, update user by id and delete user by id
