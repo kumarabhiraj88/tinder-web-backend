@@ -2,6 +2,8 @@ const express = require('express');
 const userRouter = express.Router();
 const User = require('../models/user');
 const userAuth = require('../middlewares/auth');
+const ConnectionRequest = require('../models/connectionRequest');
+
 
 //get all users
 userRouter.get("/getUsers", userAuth,  async(req, res) => {
@@ -59,11 +61,41 @@ userRouter.delete("/deleteUser/:userId", userAuth, async(req, res) => {
     } 
 })
 
-//Don't show profiles that - already sent connection request, ignored profiles , his connection profiles, his own card
+//corner cases
+//User Should see all the profiles except
+//1->  his own card
+//2->  his connections
+//3->  ignored profiles
+//4->  Already connected profiles
+
 userRouter.get("/feed", userAuth, async(req, res) => {
     try{    
-        const loggedInUser= req.user;
-        //Find all the connections(sent/received) of the logged in user
+        const loggedInUser= req.user._id;
+
+        //Find all the connection requests(sent/received) of the logged in user  -- to avoid from the feed api
+        const connectionRequests= await ConnectionRequest.findOne({
+            $or:[
+                {senderId:loggedInUser},
+                {receiverId:loggedInUser}
+            ]
+        }).select("senderId receiverId");
+
+        //get unique user ids from the connection requests
+        const uniqueUserIds= new Set();
+        connectionRequests.forEach(request=>{
+            uniqueUserIds.add(request.senderId.toString());
+            uniqueUserIds.add(request.receiverId.toString());
+        });
+
+        //find the profiles except uniqueUserIds and my own id
+        const feed= await User.find({
+            $and:[
+                { _id:{ $nin: Array.from(uniqueUserIds) } },
+                { _id:{ $ne: loggedInUser }}
+            ]
+        }).select("firstName lastName age gender");
+
+        res.send(feed);
         
     }catch(err){    
         console.log("Error getting feed",err.message);
