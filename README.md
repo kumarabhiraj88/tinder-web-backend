@@ -56,3 +56,23 @@ Create an Express server
 -> npm i cors, add it as a middleware( app.use(cors())) (to avoid cross domain api fetching)
     (Also whitelist the domain name within the cors(), If the origin is not whitelisted, the browser will not send cookies)
     (this prevent unauthorized or malicious sites from making requests to your server)
+
+-> create a schema for connectionRequest with senderId, receiverId, status and timestamp
+-> create a route for request (requestRouter.js)
+-> create connectionRequest api
+ (Always think about the corner cases, otherwise attackers can misuse the apis)
+ (eg: //corner cases of connection request
+//1-> can send "accepted" or "rejected" status through the params- status in the api
+//2-> check whether the receiverId exists or not
+//3-> don't allow the user to send more than one request to the same user)
+ (In Mongoose, the schema.pre("save", ...) middleware is a way to define a function that runs before a document is saved to the database)
+ (this can be used to check if both sender and receiver are same or not-- this can be done at corner cases while api validation or with schema.pre())
+
+ -> Do Indexing
+ (Faster Query Performance---Indexes significantly speed up query execution by allowing the database to find and access data more quickly. Without indexes, MongoDB must scan every document in a collection to find matching records, which can be time-consuming, especially for large datasets.)
+ (Efficient Sorting- When you sort query results, indexes allow MongoDB to return the results in the desired order without needing to sort the entire dataset in memor)
+ (MongoDB can use the index to limit the number of documents it needs to examine, which reduces the overall workload and improves performance.)
+
+ Compound Indexes--You can create compound indexes that consist of multiple fields. This is useful for queries that filter or sort based on multiple criteria, allowing for more efficient query execution.
+
+ -> create feed api - to show the profiles of other users on the platform

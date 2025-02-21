@@ -26,7 +26,10 @@ const userSchema = mongoose.Schema({
     },
     gender:{
         type: String,
-        enum: genderEnum
+        enum: {
+            values: genderEnum,
+            message: '{VALUE} is incorrect gender type'
+        }
     }
 }, {timestamps: true});
 

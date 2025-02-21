@@ -59,5 +59,16 @@ userRouter.delete("/deleteUser/:userId", userAuth, async(req, res) => {
     } 
 })
 
+//Don't show profiles that - already sent connection request, ignored profiles , his connection profiles, his own card
+userRouter.get("/feed", userAuth, async(req, res) => {
+    try{    
+        const loggedInUser= req.user;
+        //Find all the connections(sent/received) of the logged in user
+        
+    }catch(err){    
+        console.log("Error getting feed",err.message);
+    } 
+})
+
 
 module.exports=userRouter;

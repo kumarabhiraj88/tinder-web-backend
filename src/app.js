@@ -10,6 +10,7 @@ const cors = require('cors');
 const authRouter = require('./routes/authRouter');
 const profileRouter = require('./routes/profileRouter');
 const userRouter = require('./routes/userRouter');
+const requestRouter = require('./routes/requestRouter');
 
 // create an instance of express application
 const app = express();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/user", userRouter);
+app.use("/request", requestRouter);
 
 //server start listening on port only if database connected successfully
 connection().then(()=>{
