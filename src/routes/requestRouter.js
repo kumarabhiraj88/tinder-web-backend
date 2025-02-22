@@ -50,4 +50,40 @@ requestRouter.post("/send/:status/:receiverId", userAuth, async(req, res) => {
     } 
 })  
 
+
+//corner cases
+//1-> status should be accepted/rejected
+//2-> check whether the receiverId of the requestId and the loggedInUserId are same, status is in "interested" state.
+//3-> 
+requestRouter.post("/review/:status/:requestId", userAuth, async(req, res) => {
+    try{
+        const loggedInUserId = req.user._id;
+        const {status, requestId} =req.params;
+
+        //corner case 1
+        const allowedStatus= ["accepted", "rejected"];
+        if(!allowedStatus.includes(status)){
+           return res.status(400).json({message:"Invalid status type: "+status});
+        }
+
+        //corner case 2
+        const connectionRequest= await ConnectionRequest.findOne({
+            _id:requestId,
+            receiverId:loggedInUserId,
+            status:"interested"
+        });
+        if(!connectionRequest){
+            return res.status(404).json({message:"Connection request not found"});
+        }
+        
+        connectionRequest.status=status;
+        await connectionRequest.save();
+        
+        res.json({message:"Connection request "+status});
+        
+    }catch(err){    
+        res.status(400).send("Error : "+ err.message)
+    } 
+})
+
 module.exports=requestRouter;
