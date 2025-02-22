@@ -71,6 +71,10 @@ userRouter.delete("/deleteUser/:userId", userAuth, async(req, res) => {
 userRouter.get("/feed", userAuth, async(req, res) => {
     try{    
         const loggedInUser= req.user._id;
+        const page = parseInt(req.params.page) || 1;
+        let limit = parseInt(req.params.limit) || 10;
+        limit = limit > 50 ? 50: limit;  //to prevent more than 50 results
+        const skip = (page - 1) * limit; //ie, skipping previous pages result
 
         //Find all the connection requests(sent/received) of the logged in user  -- to avoid from the feed api
         const connectionRequests= await ConnectionRequest.findOne({
@@ -93,7 +97,7 @@ userRouter.get("/feed", userAuth, async(req, res) => {
                 { _id:{ $nin: Array.from(uniqueUserIds) } },
                 { _id:{ $ne: loggedInUser }}
             ]
-        }).select("firstName lastName age gender");
+        }).select("firstName lastName age gender").skip(skip).limit(limit);
 
         res.send(feed);
         

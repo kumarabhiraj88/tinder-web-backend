@@ -79,3 +79,6 @@ Create an Express server
  -> create feed api - to show the profiles of other users on the platform
     (Find all the connection requests(sent/received) of the logged in user  -- to avoid from the feed api)
     (get uniqueUserIds from the connection requests results and find the profiles except uniqueUserIds and my own id)
+    (add pagination to the feed api- using skip() and limit())
+    (db.collection.find().skip(10).limit(5)--This will skip the first 10 documents and then return the next 5 documents.)
+    (const skip = (page - 1) * limit; //ie, skipping previous pages result)
