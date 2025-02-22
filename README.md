@@ -82,3 +82,8 @@ Create an Express server
     (add pagination to the feed api- using skip() and limit())
     (db.collection.find().skip(10).limit(5)--This will skip the first 10 documents and then return the next 5 documents.)
     (const skip = (page - 1) * limit; //ie, skipping previous pages result)
+
+-> create api for requests received (status- interested)
+(to get the firstName(user details) of the senderId/receiverId-- build a connection b/w the collections)
+(using ref attribute in the collection eg: ref:"User"--reference to the User collection within the connectionRequestSchema collection)
+(and populate("mainCollectionField","subCollectionField1 subCollectionField2")-- to get the fieldnames)

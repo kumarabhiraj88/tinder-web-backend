@@ -86,4 +86,36 @@ requestRouter.post("/review/:status/:requestId", userAuth, async(req, res) => {
     } 
 })
 
+
+//get received requests
+requestRouter.get("/received", userAuth, async(req, res) => {
+    try{
+        const loggedInUserId = req.user._id;
+        const connectionRequests= await ConnectionRequest.find({receiverId:loggedInUserId, status:"interested"})
+        .populate("senderId", "firstName lastName"); //or like this  .populate("senderId", ["firstName", "lastName"]);
+        res.json({data:connectionRequests});
+    }catch(err){    
+        res.status(400).send("Error : "+ err.message)
+    } 
+})
+
+//get accepted requests
+requestRouter.get("/accepted", userAuth, async(req, res) => {
+    try{
+        const loggedInUserId = req.user._id;
+        const connectionRequests= await ConnectionRequest.find({$or:[{senderId:loggedInUserId},{receiverId:loggedInUserId}], status:"accepted"})
+        .populate("senderId", "firstName lastName")
+        .populate("receiverId", "firstName lastName"); 
+        const result= connectionRequests.map((row)=>{
+            if(row.senderId._id.toString()===loggedInUserId.toString()){
+                return row.receiverId
+            }
+            return row.senderId;
+        }) //extract the senderIds sub collection datas
+        res.json({data:result});
+    }catch(err){    
+        res.status(400).send("Error : "+ err.message)
+    } 
+})
+
 module.exports=requestRouter;
