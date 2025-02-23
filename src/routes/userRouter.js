@@ -77,7 +77,7 @@ userRouter.get("/feed", userAuth, async(req, res) => {
         const skip = (page - 1) * limit; //ie, skipping previous pages result
 
         //Find all the connection requests(sent/received) of the logged in user  -- to avoid from the feed api
-        const connectionRequests= await ConnectionRequest.findOne({
+        const connectionRequests= await ConnectionRequest.find({
             $or:[
                 {senderId:loggedInUser},
                 {receiverId:loggedInUser}
@@ -86,16 +86,20 @@ userRouter.get("/feed", userAuth, async(req, res) => {
 
         //get unique user ids from the connection requests
         const uniqueUserIds= new Set();
+       
         connectionRequests.forEach(request=>{
             uniqueUserIds.add(request.senderId.toString());
             uniqueUserIds.add(request.receiverId.toString());
         });
 
-        //find the profiles except uniqueUserIds and my own id
+        // Convert the Set to an array for querying
+        const userIdsArray = Array.from(uniqueUserIds); //this is my connection users
+
+        //find the profiles except uniqueUserIds and my own id (need the profiles which are not in my connections)
         const feed= await User.find({
             $and:[
-                { _id:{ $nin: Array.from(uniqueUserIds) } },
-                { _id:{ $ne: loggedInUser }}
+                { _id:{ $nin: userIdsArray } }, //not in
+                { _id:{ $ne: loggedInUser }} //not equal
             ]
         }).select("firstName lastName age gender").skip(skip).limit(limit);
 

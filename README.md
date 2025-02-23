@@ -76,7 +76,7 @@ Create an Express server
  Compound Indexes--You can create compound indexes that consist of multiple fields. This is useful for queries that filter or sort based on multiple criteria, allowing for more efficient query execution.
 (eg: connectionRequestSchema.index({senderId: 1, receiverId: 1});)
 
- -> create feed api - to show the profiles of other users on the platform
+ -> create feed api - to show the profiles of other users on the platform (to send interest/rejection to other profiles)
     (Find all the connection requests(sent/received) of the logged in user  -- to avoid from the feed api)
     (get uniqueUserIds from the connection requests results and find the profiles except uniqueUserIds and my own id)
     (add pagination to the feed api- using skip() and limit())
