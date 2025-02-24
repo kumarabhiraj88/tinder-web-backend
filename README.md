@@ -87,3 +87,5 @@ Create an Express server
 (to get the firstName(user details) of the senderId/receiverId-- build a connection b/w the collections)
 (using ref attribute in the collection eg: ref:"User"--reference to the User collection within the connectionRequestSchema collection)
 (and populate("mainCollectionField","subCollectionField1 subCollectionField2")-- to get the fieldnames)
+
+-> create api for edit profile
