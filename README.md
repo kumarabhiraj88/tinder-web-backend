@@ -32,8 +32,13 @@ Create an Express server
 -> Use express router (express.Router();)
     (It allows you to create modular route handlers, making your code cleaner and easier to maintain)
     (Keep routes organized in separate files)
+
 -> Create a signup api and push some dummy data into database by post api call using postman tool
-(Always try to wrap crud operations within try catch block)
+    (Always try to wrap crud operations within try catch block)
+    (within signup success, create a jwt token using jwt.sign() with jwt secret key and user data )
+    (get the token from user instance using schema method and attach this token to res.cookie())
+    (same as how the token accessed using schema method while login-- to keep the created user to be logged in)
+
 -> Write apis for get all users, get single user by id, update user by id and delete user by id
 -> Add schema validation for user (like, minlength, unique, required, enum, validate())
     (By default validate() will only work for new datas(eg: registration), to make it work for updation of docs,
@@ -47,12 +52,20 @@ Create an Express server
 -> npm i cookie-parser ( add this as a middleware within app.use(cookieParser()))
     ( used to parse cookies attached to incoming requests.  It automatically parses the Cookie header and populates req.cookies with the cookie key-value pairs, making it easy to access cookie data.)
     (browsers automatically send cookies with every HTTP request to the same domain that set those cookies, Cookies have expiration dates. If a cookie has expired, it will no longer be sent with requests.)
+
 -> create login api 
     (use bcrypt.compare to check the login password and db user password matches) (also create a jwt token and add it to res.cookie())
-    (within login success, create a jwt token using jwt.sign() with jwt secret key and user data and attach this token to res.cookie())
+    -> create schema method
+    (within login success, create a jwt token using jwt.sign() with jwt secret key and user data )
+    (get the token from user instance using schema method and attach this token to res.cookie())
+    (Schema methods allow you to define custom behaviors and operations related to the data represented by that schema.)
+    (eg: UserSchema.methods.getJWT) (Don't use arrow functions for schema methods)
+    (Also validate password(compare passwords) through schema method)
+
 -> create middlewares/auth.js to verify token from the cookies and add this middleware to apis
     (use jwt.verify() to check whether the token is valid or not)
     (provide the user result in the response)
+    
 -> npm i cors, add it as a middleware( app.use(cors())) (to avoid cross domain api fetching)
     (Also whitelist the domain name within the cors(), If the origin is not whitelisted, the browser will not send cookies)
     (this prevent unauthorized or malicious sites from making requests to your server)

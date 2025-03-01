@@ -4,6 +4,7 @@ const User = require("../models/user");
 const userAuth =async(req, res, next) => {
     //checking whether the req contains a valid token or not
     try{
+        console.log();
         //read the token from req
         const {token}= req.cookies;
 

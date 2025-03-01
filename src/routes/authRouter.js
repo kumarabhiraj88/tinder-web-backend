@@ -3,7 +3,7 @@ const authRouter = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const validateSignupData = require('../utils/validation');
+const {validateSignupData} = require('../utils/validation');
 
 //signup
 authRouter.post("/signup",async(req, res)=>{
@@ -11,7 +11,7 @@ authRouter.post("/signup",async(req, res)=>{
     try{
          validateSignupData(req);
 
-        const {firstName, lastName, emailId, password, age, gender}=req.body;
+        const {firstName, lastName, emailId, password, age, gender, photoUrl, about}=req.body;
 
         //encrypt the password
         const passwordHash=await bcrypt.hash(password,10);
@@ -23,10 +23,16 @@ authRouter.post("/signup",async(req, res)=>{
             emailId, 
             password: passwordHash,
             age,
-            gender
+            gender,
+            photoUrl,
+            about,
         });
-        await user.save();
-        res.send("User created successfully");
+        const savedUser=await user.save();
+        //keep the created user as loggedin user
+        const token = await savedUser.getJWT();
+        res.cookie("token", token);
+        res.json({message:"User created successfully", data:user});
+
     }catch(err){
         res.status(400).send("Error : "+ err.message)
     }  
@@ -42,13 +48,14 @@ authRouter.post("/login",async(req, res)=>{
             throw new Error("Invalid credentials");
         }       
         else{
-            const isMatch=await bcrypt.compare(password, user.password);
+            //validate password using schema methods
+            const isMatch=await user.validatePassword(password);
             if(!isMatch){
                 throw new Error("Invalid credentials");
             }           
             else{
-                //create a JWT token and add it to cookies
-                const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET_KEY);
+                //get the token from user instance using schema method and attach this token to res.cookie()
+                const token = await user.getJWT();
                 res.cookie("token", token);
                 res.send(user);
             }

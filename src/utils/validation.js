@@ -13,4 +13,11 @@ const validateSignupData = (req) => {
     }
 }
 
-module.exports= validateSignupData;
+const validatePofileEditData=(req)=>{
+     // Check if email or password fields are present
+     if (req.email || req.password) {
+        throw new Error("Email and password fields are not allowed in profile updates.");
+    }
+}
+
+module.exports= {validatePofileEditData, validateSignupData}; //exporting validateSignupData, validatePofileEditData;

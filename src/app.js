@@ -2,9 +2,7 @@
 const express = require('express');
 require('dotenv').config(); // Load environment variables
 const connection = require('./config/database');
-const User = require('./models/user');
 const cookieParser = require('cookie-parser');
-const userAuth = require('./middlewares/auth');
 const cors = require('cors');
 
 const authRouter = require('./routes/authRouter');
