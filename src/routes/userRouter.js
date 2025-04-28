@@ -111,4 +111,37 @@ userRouter.get("/feed", userAuth, async(req, res) => {
 })
 
 
+//get accepted requests (accepted by the loggedInUser or by the other user)
+userRouter.get("/connections", userAuth, async(req, res) => {
+    try{
+        
+        const loggedInUserId = req.user._id;
+        const connectionRequests= await ConnectionRequest.find({$or:[{senderId:loggedInUserId},{receiverId:loggedInUserId}], status:"accepted"})
+        .populate("senderId", "firstName lastName")
+        .populate("receiverId", "firstName lastName"); 
+        const result= connectionRequests.map((row)=>{
+            if(row.senderId._id.toString()===loggedInUserId.toString()){
+                return row.receiverId
+            }
+            return row.senderId;
+        }) //extract the senderIds sub collection datas
+        res.json({data:result});
+    }catch(err){    
+        res.status(400).send("Error : "+ err.message)
+    } 
+})
+
+
+//get received requests (pending interests)
+userRouter.get("/requests", userAuth, async(req, res) => {
+    try{
+        const loggedInUserId = req.user._id;
+        const connectionRequests= await ConnectionRequest.find({receiverId:loggedInUserId, status:"interested"})
+        .populate("senderId", "firstName lastName about age gender photoUrl _id"); //or like this  .populate("senderId", ["firstName", "lastName"]);
+        res.json({data:connectionRequests});
+    }catch(err){    
+        res.status(400).send("Error : "+ err.message)
+    } 
+})
+
 module.exports=userRouter;
