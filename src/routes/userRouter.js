@@ -116,15 +116,16 @@ userRouter.get("/connections", userAuth, async(req, res) => {
     try{
         
         const loggedInUserId = req.user._id;
+        //The senderId field is likely a reference to another MongoDB collection, 
+        // possibly a User collection that contains information about the user who sent the connection request
         const connectionRequests= await ConnectionRequest.find({$or:[{senderId:loggedInUserId},{receiverId:loggedInUserId}], status:"accepted"})
-        .populate("senderId", "firstName lastName")
-        .populate("receiverId", "firstName lastName"); 
+        .select("_id senderId receiverId")
+        .populate("senderId", "_id firstName lastName age gender photoUrl about")
+        .populate("receiverId", "_id firstName lastName age gender photoUrl about"); 
         const result= connectionRequests.map((row)=>{
-            if(row.senderId._id.toString()===loggedInUserId.toString()){
-                return row.receiverId
-            }
-            return row.senderId;
+            return row.senderId._id.toString()===loggedInUserId.toString()? row.receiverId : row.senderId;
         }) //extract the senderIds sub collection datas
+        
         res.json({data:result});
     }catch(err){    
         res.status(400).send("Error : "+ err.message)
