@@ -10,7 +10,9 @@ const userAuth =async(req, res, next) => {
         if(!token){
             return res.status(401).json({error:"Please login"});
         }
-        const decodedObject = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+        //The jwt.verify() function from the jsonwebtoken library is synchronous by default. 
+        // It does not return a promise — so using await has no effect, which triggers the warning.
+        const decodedObject = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const {_id}=decodedObject;
         const user= await User.findById(_id);
         if(!user){
@@ -20,7 +22,7 @@ const userAuth =async(req, res, next) => {
         req.user=user;
         next();
     }catch(err){
-        return res.status(400).json({error:"User not found"});
+        return res.status(400).json({error:err.message || "Auth Error"});
     }
     
 }
