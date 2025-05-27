@@ -2,7 +2,9 @@ const express = require('express');
 const authRouter = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const {validateSignupData} = require('../utils/validation');
+
 
 //signup
 authRouter.post("/signup",async(req, res)=>{
@@ -28,12 +30,12 @@ authRouter.post("/signup",async(req, res)=>{
         });
         const savedUser=await user.save();
         //keep the created user as loggedin user
-        const token = await savedUser.getJWT();
-        res.cookie("token", token);
+        const accessToken = await savedUser.getJWT();
+        res.cookie("accessToken", accessToken, {httpOnly: true, secure: false});
         res.json({message:"User created successfully", data:user});
 
     }catch(err){
-        res.status(400).send("Error : "+ err.message)
+        res.status(401).send("Error : "+ err.message)
     }  
 
 })
@@ -54,19 +56,59 @@ authRouter.post("/login",async(req, res)=>{
             }           
             else{
                 //get the token from user instance using schema method and attach this token to res.cookie()
-                const token = await user.getJWT();
-                res.cookie("token", token);
+                //If you're testing locally without HTTPS, you must set secure: false, or the browser won’t send the cookie at all.
+                const accessToken  = await user.getJWT();
+                res.cookie("accessToken", accessToken, {httpOnly: true, secure: false});
+
+                const refreshToken  = await user.getRefreshJWT();
+                res.cookie("refreshToken", refreshToken, {httpOnly: true, secure: false});
+
+                //The httpOnly: true option tells the browser:
+                //Only send this cookie with HTTP(S) requests — do not make it accessible to JavaScript running in the browser 
+                // (e.g. via document.cookie)-- console.log(document.cookie); // Can see all cookies not marked httpOnly
+                //without httpOnly: true,  it could be stolen and used by an attacker.
                 res.send(user);
             }
         }
     }catch(err){
-        res.status(400).send("Error : "+ err.message)
+        res.status(401).send("Error : "+ err.message)
     }   
  })
 
 
+authRouter.post("/refresh-token", async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken || req.body.token;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "No refresh token provided" });
+    }
+
+    // Verify the refresh token using REFRESH secret
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
+    const userId = decoded._id;
+
+    // Create new access token using ACCESS secret
+    const newAccessToken = jwt.sign(
+      { _id: userId },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: process.env.JWT_EXPIRE } 
+    );
+
+    // Send new access token in cookie AND response
+    res.cookie("accessToken", newAccessToken, { httpOnly: true, secure: false });
+
+    res.status(200).json({ accessToken: newAccessToken }); // ✅ Frontend expects this
+  } catch (err) {
+    console.error("Refresh token error:", err.message);
+    res.status(401).send("Error: " + err.message);
+  }
+});
+
+
+
  authRouter.post("/logout", async(req, res) => {
-    res.cookie("token", null, {
+    res.cookie("accessToken", null, {
         expires: new Date(Date.now())
     });
     res.send("Logged out successfully");

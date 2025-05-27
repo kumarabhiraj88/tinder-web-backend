@@ -14,9 +14,24 @@ const requestRouter = require('./routes/requestRouter');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+//allowed origins
+const allowedOrigins = ["http://localhost:5173"];
+
 //whitelist the domains that can access the backend
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: function(origin, callback){
+        // Allow requests with no origin (e.g. mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        //origin - is the domain from which the request originated
+        if(allowedOrigins.includes(origin)){
+            callback(null, true);
+        }
+        else{
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    //Purpose: Tells the browser to include credentials (like cookies, Authorization headers, etc.) with requests.
     credentials: true
 }))
 //converts the JSON data in the request body into a JavaScript object

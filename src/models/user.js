@@ -50,6 +50,14 @@ userSchema.methods.getJWT=async function(){
     return token;
 }
 
+//create a schema method for getting JWT refresh token
+userSchema.methods.getRefreshJWT=async function(){
+    const user = this;
+    const token = await jwt.sign({_id: user._id}, process.env.JWT_REFRESH_SECRET_KEY, {
+        expiresIn: process.env.JWT_REFRESH_EXPIRE
+    });
+    return token;
+}
 //create a schema method for validate password
 userSchema.methods.validatePassword=async function(password){
     const user = this;
